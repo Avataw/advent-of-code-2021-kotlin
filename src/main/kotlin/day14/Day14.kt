@@ -48,17 +48,24 @@ fun solveB(input: List<String>): Long {
             pairAndInsertion[0] to pairAndInsertion[1]
         }
 
+    println(insertionRules)
+
     val counts = input[0]
         .toSet()
         .associateWith { input[0].filter { i -> i == it }.sumOf{1L} }
         .toMutableMap()
 
+    println(counts)
 
     val zipped = input[0].zipWithNext()
+
+    println(zipped)
 
     var rules = zipped
         .associate { (it.first + "" + it.second) to zipped.filter { i -> i == it }.sumOf { 1L } }
         .toMap()
+
+    println(rules)
 
     for (i in 1..40) {
         val nextRules = mutableMapOf<String, Long>()
