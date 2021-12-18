@@ -3,7 +3,6 @@ package day16
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import readFileAsLinesUsingUseLines
-import readTestFileAsLinesUsingUseLines
 
 class TestDay16 {
 
@@ -48,7 +47,7 @@ class TestDay16 {
         val input = readFileAsLinesUsingUseLines(16)
 
         val solution = solveB(input)
-        assertEquals(227, solution)
+        assertEquals(4358595186090, solution)
     }
 }
 
