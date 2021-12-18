@@ -7,7 +7,6 @@ import readTestFileAsLinesUsingUseLines
 
 class TestDay16 {
 
-
     @Test
     fun `should work for the given test input`() {
         val input1 = listOf("8A004A801A8002F478")
@@ -29,15 +28,19 @@ class TestDay16 {
         val input = readFileAsLinesUsingUseLines(16)
 
         val solution = solveA(input)
-        assertEquals(1659, solution)
+        assertEquals(893, solution)
     }
 
     @Test
     fun `should work with b for the given test input`() {
-        val input = readTestFileAsLinesUsingUseLines(16)
-
-        val solution = solveB(input)
-        assertEquals(195, solution)
+        assertEquals(3, solveB(listOf("C200B40A82")))
+        assertEquals(54, solveB(listOf("04005AC33890")))
+        assertEquals(7, solveB(listOf("880086C3E88112")))
+        assertEquals(9, solveB(listOf("CE00C43D881120")))
+        assertEquals(1, solveB(listOf("D8005AC2A8F0")))
+        assertEquals(0, solveB(listOf("F600BC2D8F")))
+        assertEquals(0, solveB(listOf("9C005AC2F8F0")))
+        assertEquals(1, solveB(listOf("9C0141080250320F1802104A08")))
     }
 
     @Test

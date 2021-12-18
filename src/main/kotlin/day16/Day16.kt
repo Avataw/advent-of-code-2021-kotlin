@@ -2,24 +2,16 @@ package day16
 
 fun solveA(input: List<String>): Int {
     val encodedInput = input.first().map { it.hexToBinary() }.joinToString("")
-
-    println("***************************")
-    println("Start with ${input.first()}")
-    println("-> Encoded $encodedInput")
-
-
     val packets = decodePackets(encodedInput)
-
-    println("***************************")
-    println(packets)
-
     return packets.sumOf { it.getVersion() }
 }
 
-fun solveB(input: List<String>): Int {
-    return TODO()
+fun solveB(input: List<String>): Long {
+    println("TEST ${input.first()}")
+    val encodedInput = input.first().map { it.hexToBinary() }.joinToString("")
+    val packets = decodePackets(encodedInput)
+    return packets.first().getResult()
 }
-
 
 fun Char.hexToBinary(): String = when (this) {
     '0' -> "0000"
@@ -41,19 +33,14 @@ fun Char.hexToBinary(): String = when (this) {
     else -> ""
 }
 
-interface Packet {
-    fun getVersion(): Int
-    val bitLength: Int
-}
-
 fun decodePackets(input: String, count: Int? = null): List<Packet> {
 
     var encodedPackets = input
     val packets = mutableListOf<Packet>()
 
     while (encodedPackets.length > 7) {
-        if(count != null) {
-            if(packets.size == count) return packets
+        if (count != null) {
+            if (packets.size == count) return packets
         }
         val typeId = encodedPackets.drop(3).take(3).toInt(2)
         if (typeId == 4) {
@@ -100,12 +87,18 @@ fun lengthOfLiteralPacket(input: String): Int {
                 literalInput.getOrNull(i + 8),
                 literalInput.getOrNull(i + 9)
             )
-            if(nextChunk.size < 5 && nextChunk.all { it == '0' }) toDrop += nextChunk.size
+            if (nextChunk.size < 5 && nextChunk.all { it == '0' }) toDrop += nextChunk.size
             break
         }
         i += 5
     }
     return 6 + toDrop
+}
+
+interface Packet {
+    fun getVersion(): Int
+    val bitLength: Int
+    fun getResult(): Long
 }
 
 class OperatorPacket(packetVersion: Int, typeId: Int, bitLength: Int, subPackets: List<Packet>) : Packet {
@@ -114,12 +107,37 @@ class OperatorPacket(packetVersion: Int, typeId: Int, bitLength: Int, subPackets
     private val subPackets: List<Packet>
     override val bitLength: Int
 
+
     init {
         this.packetVersion = packetVersion
         this.typeId = typeId
         this.bitLength = bitLength
         this.subPackets = subPackets
-//        println("Creating OP with version: $packetVersion typeId: $typeId and subPackets $subPackets")
+    }
+
+    override fun getResult(): Long {
+        return when(typeId) {
+            0 -> subPackets.sumOf { it.getResult() }
+            1 -> subPackets.map{it.getResult()}.reduce { acc, result -> acc * result }
+            2 -> subPackets.minOf{it.getResult()}
+            3 -> subPackets.maxOf{it.getResult()}
+            5 -> {
+                val first = subPackets[0].getResult()
+                val second = subPackets[1].getResult()
+                if(first > second) 1 else 0
+            }
+            6 -> {
+                val first = subPackets[0].getResult()
+                val second = subPackets[1].getResult()
+                if(first < second) 1 else 0
+            }
+            7 -> {
+                val first = subPackets[0].getResult()
+                val second = subPackets[1].getResult()
+                if(first == second) 1 else 0
+            }
+            else -> -1
+        }
     }
 
     override fun getVersion() = packetVersion + subPackets.sumOf { it.getVersion() }
@@ -154,6 +172,8 @@ class LiteralValuePacket(input: String) : Packet {
         }
         return result.toLong(2)
     }
+
+    override fun getResult() = literalValue
 
     override fun getVersion(): Int = packetVersion
 
