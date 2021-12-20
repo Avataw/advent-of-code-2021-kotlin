@@ -1,7 +1,6 @@
 package day18
 
 import kotlin.math.ceil
-import kotlin.math.exp
 import kotlin.math.floor
 
 fun solveA(input: List<String>): Int {
