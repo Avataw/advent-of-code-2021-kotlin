@@ -3,7 +3,6 @@ package day22
 import kotlin.math.max
 import kotlin.math.min
 
-
 fun solveA(input: List<String>): Int {
 
     val cuboidToIsOn = mutableMapOf<Cube, Boolean>()
@@ -40,7 +39,7 @@ fun solveA(input: List<String>): Int {
 data class Cube(val x: Int, val y: Int, val z: Int)
 
 data class Cuboid(val x: IntRange, val y: IntRange, val z: IntRange) {
-    val pointsInsideCount = x.count() * y.count() * z.count()
+    val pointsInsideCount = x.count().toLong() * y.count().toLong() * z.count().toLong()
     var isOn = false
 
     fun overlap(other: Cuboid): Cuboid? {
@@ -51,19 +50,10 @@ data class Cuboid(val x: IntRange, val y: IntRange, val z: IntRange) {
         )
         return if (overlap.pointsInsideCount > 0) overlap else null
     }
-
-
-//    fun getOverlappingPoints(other: Cuboid): Int {
-//        val overlap = checkForOverlap(other)
-//        overlaps.add(overlap)
-//        return overlap.pointsInsideCount
-//    }
-
 }
 
-
-fun solveB(input: List<String>): Long {
-    var cuboids = input.map {
+fun List<String>.toCuboids(): List<Cuboid> =
+    this.map {
         val turnOnAndCoords = it.split(" ")
 
         val turnOn = turnOnAndCoords[0] == "on"
@@ -79,32 +69,21 @@ fun solveB(input: List<String>): Long {
         Cuboid(xRange, yRange, zRange).also { c -> c.isOn = turnOn }
     }
 
-    var points = cuboids.sumOf { it.pointsInsideCount.toLong() }
 
-    var allIntersections = mutableListOf<Cuboid>()
+fun solveB(input: List<String>): Long {
 
-    for (i in cuboids.indices) {
-        for (j in 0 until i) {
-            val overlap = cuboids[i].overlap(cuboids[j]) ?: continue
-            allIntersections.add(overlap)
+    val result = mutableListOf<Cuboid>()
+
+    input.toCuboids()
+        .forEach { cuboid ->
+            result.addAll(
+                result.mapNotNull {
+                    cuboid.overlap(it)?.also { overlap -> overlap.isOn = !it.isOn }
+                })
+
+            if (cuboid.isOn) result.add(cuboid)
         }
-    }
-    var allNewIntersections = mutableListOf<Cuboid>()
-    while (allIntersections != allNewIntersections) {
 
-        allIntersections = allNewIntersections
-        allNewIntersections.clear()
-
-        for (i in allIntersections.indices) {
-            for (j in 0 until i) {
-                val overlap = allIntersections[i].overlap(allIntersections[j]) ?: continue
-                allNewIntersections.add(overlap)
-            }
-        }
-    }
-
-
-
-    return points
-    //sumOf { it.getUniquePoints().toLong() }
+    return result.sumOf { if (it.isOn) it.pointsInsideCount else -it.pointsInsideCount }
 }
+
